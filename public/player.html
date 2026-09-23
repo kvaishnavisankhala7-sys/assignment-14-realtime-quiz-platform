@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Quiz Battle - Player</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    input,
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background: #111;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    .question {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .timer {
+      font-size: 42px;
+      font-weight: bold;
+      text-align: center;
+      margin: 15px;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .answer {
+      min-height: 100px;
+      border-radius: 12px;
+      border: none;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 15px;
+      background: #e9e9e9;
+      color: #111;
+    }
+
+    .answer:hover {
+      transform: scale(1.02);
+    }
+
+    .answer:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .correct {
+      background: #c8f7d2;
+      border: 3px solid #28a745;
+    }
+
+    .wrong {
+      background: #ffd0d0;
+      border: 3px solid #dc3545;
+    }
+
+    .score {
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    .leaderboard {
+      margin-top: 15px;
+    }
+
+    .rank {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .winner {
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      margin: 25px 0;
+    }
+
+    @media (max-width: 600px) {
+      .answers {
+        grid-template-columns: 1fr;
+      }
+
+      .question {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>🎮 Quiz Battle</h1>
+
+
+    <!-- JOIN QUIZ -->
+
+    <div class="card" id="joinSection">
+
+      <h2>Join Quiz</h2>
+
+      <input
+        type="text"
+        id="playerName"
+        placeholder="Enter your name"
+      />
+
+      <input
+        type="text"
+        id="quizPin"
+        placeholder="Enter 4-digit PIN"
+        maxlength="4"
+      />
+
+      <button onclick="joinQuiz()">
+        Join Quiz
+      </button>
+
+      <div
+        class="status"
+        id="joinStatus"
+      ></div>
+
+    </div>
+
+
+    <!-- WAITING LOBBY -->
+
+    <div
+      class="card hidden"
+      id="waitingSection"
+    >
+
+      <h2>⏳ Waiting for Host</h2>
+
+      <p
+        style="
+          text-align: center;
+          margin-top: 15px;
+        "
+      >
+        You have joined the quiz.
+      </p>
+
+      <div
+        class="status"
+        id="waitingStatus"
+      >
+        Waiting for the host to start...
+      </div>
+
+    </div>
+
+
+    <!-- QUESTION -->
+
+    <div
+      class="card hidden"
+      id="questionSection"
+    >
+
+      <div
+        class="timer"
+        id="timer"
+      >
+        15
+      </div>
+
+      <div
+        class="question"
+        id="questionText"
+      >
+        Question
+      </div>
+
+      <div
+        class="answers"
+        id="answersContainer"
+      ></div>
+
+      <div
+        class="score"
+        id="scoreDisplay"
+      >
+        Score: 0
+      </div>
+
+      <div
+        class="status"
+        id="answerStatus"
+      ></div>
+
+    </div>
+
+
+    <!-- LEADERBOARD -->
+
+    <div
+      class="card hidden"
+      id="leaderboardSection"
+    >
+
+      <h2>🏆 Leaderboard</h2>
+
+      <div
+        class="leaderboard"
+        id="leaderboard"
+      ></div>
+
+    </div>
+
+
+    <!-- FINAL RESULT -->
+
+    <div
+      class="card hidden"
+      id="resultSection"
+    >
+
+      <h2 style="text-align: center;">
+        🎉 Quiz Finished!
+      </h2>
+
+      <div
+        class="winner"
+        id="winner"
+      ></div>
+
+      <div
+        class="leaderboard"
+        id="finalLeaderboard"
+      ></div>
+
+    </div>
+
+  </div>
+
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+
+    const socket = io();
+
+    let quizPin = null;
+    let timerInterval = null;
+    let currentQuestionStartTime = null;
+    let hasAnswered = false;
+
+
+    // JOIN QUIZ
+
+    function joinQuiz() {
+
+      const playerName =
+        document
+          .getElementById("playerName")
+          .value
+          .trim();
+
+      quizPin =
+        document
+          .getElementById("quizPin")
+          .value
+          .trim();
+
+
+      if (!playerName || !quizPin) {
+
+        document
+          .getElementById("joinStatus")
+          .textContent =
+          "Please enter your name and quiz PIN.";
+
+        return;
+      }
+
+
+      socket.emit("quiz:join", {
+        pin: quizPin,
+        playerName: playerName
+      });
+    }
+
+
+    // SUCCESSFULLY JOINED
+
+    socket.on("quiz:joined", (data) => {
+
+      quizPin = data.pin;
+
+      document
+        .getElementById("joinSection")
+        .classList.add("hidden");
+
+      document
+        .getElementById("waitingSection")
+        .classList.remove("hidden");
+
+    });
+
+
+    // QUESTION START
+
+    socket.on("question:start", (data) => {
+
+      document
+        .getElementById("waitingSection")
+        .classList.add("hidden");
+
+      document
+        .getElementById("questionSection")
+        .classList.remove("hidden");
+
+      document
+        .getElementById("leaderboardSection")
+        .classList.remove("hidden");
+
+
+      hasAnswered = false;
+
+      currentQuestionStartTime = Date.now();
+
+
+      document
+        .getElementById("questionText")
+        .textContent =
+        data.question;
+
+
+      document
+        .getElementById("answerStatus")
+        .textContent =
+        "";
+
+
+      const answersContainer =
+        document.getElementById(
+          "answersContainer"
+        );
+
+
+      answersContainer.innerHTML = "";
+
+
+      data.options.forEach(
+        (option, index) => {
+
+          const button =
+            document.createElement("button");
+
+          button.className = "answer";
+
+          button.textContent =
+            option;
+
+          button.onclick = () =>
+            submitAnswer(index);
+
+          answersContainer.appendChild(
+            button
+          );
+
+        }
+      );
+
+
+      startTimer(
+        data.timeLimitSeconds
+      );
+    });
+
+
+    // TIMER
+
+    function startTimer(seconds) {
+
+      clearInterval(timerInterval);
+
+      let timeLeft = seconds;
+
+      const timer =
+        document.getElementById("timer");
+
+      timer.textContent =
+        timeLeft;
+
+
+      timerInterval =
+        setInterval(() => {
+
+          timeLeft--;
+
+          timer.textContent =
+            timeLeft;
+
+
+          if (timeLeft <= 0) {
+
+            clearInterval(
+              timerInterval
+            );
+
+            disableAnswers();
+
+          }
+
+        }, 1000);
+    }
+
+
+    // SUBMIT ANSWER
+
+    function submitAnswer(index) {
+
+      if (hasAnswered) {
+        return;
+      }
+
+      hasAnswered = true;
+
+      const timeTaken =
+        Date.now() -
+        currentQuestionStartTime;
+
+
+      socket.emit(
+        "answer:submit",
+        {
+          pin: quizPin,
+          selectedOption: index,
+          timeTakenMs: timeTaken
+        }
+      );
+
+
+      disableAnswers();
+
+
+      document
+        .getElementById("answerStatus")
+        .textContent =
+        "Answer submitted! ⏳";
+    }
+
+
+    // DISABLE ANSWERS
+
+    function disableAnswers() {
+
+      const buttons =
+        document.querySelectorAll(
+          ".answer"
+        );
+
+      buttons.forEach(
+        (button) => {
+          button.disabled = true;
+        }
+      );
+    }
+
+
+    // QUESTION ENDS
+
+    socket.on(
+      "question:time_up",
+      (data) => {
+
+        clearInterval(
+          timerInterval
+        );
+
+        document
+          .getElementById("timer")
+          .textContent =
+          "TIME UP";
+
+
+        disableAnswers();
+
+
+        const buttons =
+          document.querySelectorAll(
+            ".answer"
+          );
+
+
+        if (buttons[data.correctOption]) {
+
+          buttons[
+            data.correctOption
+          ].classList.add(
+            "correct"
+          );
+
+        }
+
+
+        document
+          .getElementById("answerStatus")
+          .textContent =
+          data.explanation;
+      }
+    );
+
+
+    // LEADERBOARD UPDATE
+
+    socket.on(
+      "leaderboard:update",
+      (data) => {
+
+        const leaderboard =
+          document.getElementById(
+            "leaderboard"
+          );
+
+
+        leaderboard.innerHTML =
+          data.leaderboard
+            .map(
+              (player) => `
+                <div class="rank">
+
+                  <span>
+                    #${player.rank}
+                    ${player.name}
+                  </span>
+
+                  <strong>
+                    ${player.score}
+                  </strong>
+
+                </div>
+              `
+            )
+            .join("");
+
+
+        const myName =
+          document
+            .getElementById("playerName")
+            .value
+            .trim();
+
+
+        const me =
+          data.leaderboard.find(
+            (player) =>
+              player.name === myName
+          );
+
+
+        if (me) {
+
+          document
+            .getElementById(
+              "scoreDisplay"
+            )
+            .textContent =
+            `Score: ${me.score}`;
+
+        }
+
+      }
+    );
+
+
+    // QUIZ ENDED
+
+    socket.on(
+      "quiz:ended",
+      (data) => {
+
+        clearInterval(
+          timerInterval
+        );
+
+
+        document
+          .getElementById(
+            "questionSection"
+          )
+          .classList.add(
+            "hidden"
+          );
+
+
+        document
+          .getElementById(
+            "leaderboardSection"
+          )
+          .classList.add(
+            "hidden"
+          );
+
+
+        document
+          .getElementById(
+            "resultSection"
+          )
+          .classList.remove(
+            "hidden"
+          );
+
+
+        if (data.winner) {
+
+          document
+            .getElementById(
+              "winner"
+            )
+            .textContent =
+            `🏆 Winner: ${data.winner.name} — ${data.winner.score} points`;
+
+        }
+
+
+        document
+          .getElementById(
+            "finalLeaderboard"
+          )
+          .innerHTML =
+          data.finalRanks
+            .map(
+              (player) => `
+                <div class="rank">
+
+                  <span>
+                    #${player.rank}
+                    ${player.name}
+                  </span>
+
+                  <strong>
+                    ${player.score}
+                  </strong>
+
+                </div>
+              `
+            )
+            .join("");
+
+      }
+    );
+
+
+    // ERROR
+
+    socket.on("error", (data) => {
+
+      document
+        .getElementById(
+          "joinStatus"
+        )
+        .textContent =
+        data.message;
+
+      alert(data.message);
+
+    });
+
+  </script>
+
+</body>
+</html>

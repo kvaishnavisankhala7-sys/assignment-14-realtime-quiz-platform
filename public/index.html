@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Real-Time Quiz Battle</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      text-align: center;
+    }
+
+    .card {
+      background: white;
+      padding: 45px 30px;
+      border-radius: 20px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 38px;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 35px;
+      font-size: 17px;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 150px;
+      padding: 25px;
+      border-radius: 15px;
+      text-decoration: none;
+      color: white;
+      font-size: 22px;
+      font-weight: bold;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .button:hover {
+      transform: translateY(-4px);
+      opacity: 0.9;
+    }
+
+    .host {
+      background: #111;
+    }
+
+    .player {
+      background: #555;
+    }
+
+    .icon {
+      display: block;
+      font-size: 45px;
+      margin-bottom: 10px;
+    }
+
+    .info {
+      margin-top: 30px;
+      color: #777;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 30px;
+      }
+
+      .buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .button {
+        min-height: 120px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="card">
+
+      <h1>🎮 Quiz Battle</h1>
+
+      <p class="subtitle">
+        Real-Time Multiplayer Quiz Arena
+      </p>
+
+      <div class="buttons">
+
+        <a
+          href="/host.html"
+          class="button host"
+        >
+          <div>
+            <span class="icon">👑</span>
+            Host Quiz
+          </div>
+        </a>
+
+
+        <a
+          href="/player.html"
+          class="button player"
+        >
+          <div>
+            <span class="icon">🎯</span>
+            Join Quiz
+          </div>
+        </a>
+
+      </div>
+
+      <div class="info">
+        <p>
+          Host creates a quiz and receives a 4-digit PIN.
+        </p>
+
+        <p>
+          Players join using the PIN and compete in real time.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>

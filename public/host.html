@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Quiz Battle - Host</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #f4f4f4;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    input,
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: #111;
+      color: white;
+      font-weight: bold;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    .pin {
+      font-size: 42px;
+      font-weight: bold;
+      text-align: center;
+      margin: 15px 0;
+      letter-spacing: 8px;
+    }
+
+    .players {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .player {
+      background: #f1f1f1;
+      padding: 15px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .question {
+      font-size: 26px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .option {
+      padding: 20px;
+      border-radius: 10px;
+      background: #eee;
+      font-size: 18px;
+    }
+
+    .timer {
+      font-size: 45px;
+      font-weight: bold;
+      text-align: center;
+      margin: 20px;
+    }
+
+    .leaderboard {
+      margin-top: 15px;
+    }
+
+    .rank {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .correct {
+      background: #d4edda;
+      border: 2px solid #28a745;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>🎮 Real-Time Quiz Battle</h1>
+
+    <!-- CREATE QUIZ -->
+    <div class="card" id="createSection">
+
+      <h2>Create Quiz</h2>
+
+      <input
+        type="text"
+        id="hostName"
+        placeholder="Enter host name"
+      />
+
+      <input
+        type="text"
+        id="category"
+        placeholder="Quiz category"
+        value="Tech"
+      />
+
+      <button onclick="createQuiz()">
+        Create Quiz
+      </button>
+
+      <div class="message" id="createMessage"></div>
+
+    </div>
+
+
+    <!-- LOBBY -->
+    <div class="card hidden" id="lobbySection">
+
+      <h2>Quiz Lobby</h2>
+
+      <p>Share this PIN with the players:</p>
+
+      <div class="pin" id="quizPin">----</div>
+
+      <p>
+        Category:
+        <strong id="quizCategory">Tech</strong>
+      </p>
+
+      <h3 style="margin-top: 20px;">
+        Players
+      </h3>
+
+      <div class="players" id="playersList">
+        No players joined yet.
+      </div>
+
+      <button onclick="startQuiz()" style="margin-top: 25px;">
+        🚀 Start Quiz
+      </button>
+
+      <div class="message" id="lobbyMessage"></div>
+
+    </div>
+
+
+    <!-- QUESTION -->
+    <div class="card hidden" id="questionSection">
+
+      <h2 id="questionNumber">
+        Question 1
+      </h2>
+
+      <div class="timer" id="timer">
+        15
+      </div>
+
+      <div class="question" id="questionText">
+        Waiting for question...
+      </div>
+
+      <div class="options" id="optionsContainer"></div>
+
+    </div>
+
+
+    <!-- LEADERBOARD -->
+    <div class="card hidden" id="leaderboardSection">
+
+      <h2>🏆 Live Leaderboard</h2>
+
+      <div
+        class="leaderboard"
+        id="leaderboard"
+      ></div>
+
+    </div>
+
+
+    <!-- RESULTS -->
+    <div class="card hidden" id="resultsSection">
+
+      <h2>🎉 Quiz Finished!</h2>
+
+      <h3
+        id="winner"
+        style="margin: 20px 0;"
+      ></h3>
+
+      <div
+        class="leaderboard"
+        id="finalLeaderboard"
+      ></div>
+
+    </div>
+
+  </div>
+
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    const socket = io();
+
+    let quizPin = null;
+    let timerInterval = null;
+
+
+    // CREATE QUIZ
+    function createQuiz() {
+
+      const hostName =
+        document.getElementById("hostName").value.trim();
+
+      const category =
+        document.getElementById("category").value.trim();
+
+
+      if (!hostName) {
+
+        document.getElementById("createMessage").textContent =
+          "Please enter your name.";
+
+        return;
+      }
+
+
+      socket.emit("quiz:create", {
+        hostName,
+        category
+      });
+    }
+
+
+    // QUIZ CREATED
+    socket.on("quiz:created", (data) => {
+
+      quizPin = data.pin;
+
+      document.getElementById("quizPin").textContent =
+        data.pin;
+
+      document.getElementById("quizCategory").textContent =
+        document.getElementById("category").value;
+
+      document
+        .getElementById("createSection")
+        .classList.add("hidden");
+
+      document
+        .getElementById("lobbySection")
+        .classList.remove("hidden");
+    });
+
+
+    // UPDATE PLAYERS
+    socket.on("lobby:update", (data) => {
+
+      const playersList =
+        document.getElementById("playersList");
+
+      if (!data.players.length) {
+
+        playersList.innerHTML =
+          "No players joined yet.";
+
+        return;
+      }
+
+
+      playersList.innerHTML =
+        data.players
+          .map(
+            (player) => `
+              <div class="player">
+                👤 ${player.name}
+              </div>
+            `
+          )
+          .join("");
+    });
+
+
+    // START QUIZ
+    function startQuiz() {
+
+      if (!quizPin) return;
+
+      socket.emit("quiz:start", {
+        pin: quizPin
+      });
+    }
+
+
+    // QUESTION START
+    socket.on("question:start", (data) => {
+
+      document
+        .getElementById("lobbySection")
+        .classList.add("hidden");
+
+      document
+        .getElementById("questionSection")
+        .classList.remove("hidden");
+
+      document
+        .getElementById("leaderboardSection")
+        .classList.remove("hidden");
+
+
+      document.getElementById("questionNumber").textContent =
+        `Question ${data.questionIndex} / ${data.totalQuestions}`;
+
+      document.getElementById("questionText").textContent =
+        data.question;
+
+
+      const optionsContainer =
+        document.getElementById("optionsContainer");
+
+
+      optionsContainer.innerHTML =
+        data.options
+          .map(
+            (option, index) => `
+              <div
+                class="option"
+                id="option-${index}"
+              >
+                ${index + 1}. ${option}
+              </div>
+            `
+          )
+          .join("");
+
+
+      startTimer(data.timeLimitSeconds);
+    });
+
+
+    // TIMER
+    function startTimer(seconds) {
+
+      clearInterval(timerInterval);
+
+      let timeLeft = seconds;
+
+      const timer =
+        document.getElementById("timer");
+
+      timer.textContent = timeLeft;
+
+
+      timerInterval = setInterval(() => {
+
+        timeLeft--;
+
+        timer.textContent = timeLeft;
+
+
+        if (timeLeft <= 0) {
+
+          clearInterval(timerInterval);
+
+        }
+
+      }, 1000);
+    }
+
+
+    // QUESTION ENDS
+    socket.on("question:time_up", (data) => {
+
+      clearInterval(timerInterval);
+
+      document.getElementById("timer").textContent =
+        "TIME UP";
+
+
+      const correctOption =
+        document.getElementById(
+          `option-${data.correctOption}`
+        );
+
+
+      if (correctOption) {
+
+        correctOption.classList.add("correct");
+
+      }
+    });
+
+
+    // LEADERBOARD
+    socket.on("leaderboard:update", (data) => {
+
+      const leaderboard =
+        document.getElementById("leaderboard");
+
+
+      leaderboard.innerHTML =
+        data.leaderboard
+          .map(
+            (player) => `
+              <div class="rank">
+                <span>
+                  #${player.rank} ${player.name}
+                </span>
+
+                <strong>
+                  ${player.score}
+                </strong>
+              </div>
+            `
+          )
+          .join("");
+    });
+
+
+    // QUIZ ENDED
+    socket.on("quiz:ended", (data) => {
+
+      clearInterval(timerInterval);
+
+      document
+        .getElementById("questionSection")
+        .classList.add("hidden");
+
+      document
+        .getElementById("leaderboardSection")
+        .classList.add("hidden");
+
+      document
+        .getElementById("resultsSection")
+        .classList.remove("hidden");
+
+
+      if (data.winner) {
+
+        document.getElementById("winner").textContent =
+          `🏆 Winner: ${data.winner.name} — ${data.winner.score} points`;
+
+      } else {
+
+        document.getElementById("winner").textContent =
+          "No winner.";
+
+      }
+
+
+      document.getElementById("finalLeaderboard").innerHTML =
+        data.finalRanks
+          .map(
+            (player) => `
+              <div class="rank">
+                <span>
+                  #${player.rank} ${player.name}
+                </span>
+
+                <strong>
+                  ${player.score}
+                </strong>
+              </div>
+            `
+          )
+          .join("");
+    });
+
+
+    // ERROR HANDLER
+    socket.on("error", (data) => {
+
+      alert(data.message);
+
+    });
+  </script>
+
+</body>
+</html>

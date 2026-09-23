@@ -1,0 +1,68 @@
+[
+  {
+    "question": "What is Node.js runtime based on?",
+    "options": [
+      "V8",
+      "SpiderMonkey",
+      "Chakra",
+      "JVM"
+    ],
+    "correctOption": 0,
+    "explanation": "Node.js is built on Google's V8 JavaScript engine."
+  },
+  {
+    "question": "Which protocol does Socket.io primarily use for real-time communication?",
+    "options": [
+      "FTP",
+      "WebSocket",
+      "SMTP",
+      "DNS"
+    ],
+    "correctOption": 1,
+    "explanation": "Socket.io enables real-time, bidirectional communication and commonly uses WebSocket."
+  },
+  {
+    "question": "Which keyword declares a constant in JavaScript?",
+    "options": [
+      "var",
+      "let",
+      "const",
+      "static"
+    ],
+    "correctOption": 2,
+    "explanation": "The const keyword declares a variable whose binding cannot be reassigned."
+  },
+  {
+    "question": "Which data structure follows FIFO?",
+    "options": [
+      "Stack",
+      "Queue",
+      "Tree",
+      "Graph"
+    ],
+    "correctOption": 1,
+    "explanation": "A queue follows First In, First Out (FIFO)."
+  },
+  {
+    "question": "What does API stand for?",
+    "options": [
+      "Application Programming Interface",
+      "Advanced Program Integration",
+      "Application Process Instruction",
+      "Automated Programming Input"
+    ],
+    "correctOption": 0,
+    "explanation": "API stands for Application Programming Interface."
+  },
+  {
+    "question": "Which HTTP method is normally used to retrieve data?",
+    "options": [
+      "POST",
+      "DELETE",
+      "GET",
+      "PATCH"
+    ],
+    "correctOption": 2,
+    "explanation": "GET is commonly used to retrieve data from a server."
+  }
+]
